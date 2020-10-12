@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script>
+		var gameProgress;
+		var testifyOnce=true;
+		function main(){
+			var xhr=new XMLHttpRequest();
+			xhr.open('GET','http://94.191.41.52:3000/getProgress',false);
+			xhr.send();
+			gameProgress=xhr.responseText;
+			console.log(gameProgress);
+			if(gameProgress=='testify'&&testifyOnce){
+				testifyOnce=false;
+				if(selfData.id=='凶手'){
+					for(var i=1;i<3;i++){
+						for(var i2=0;i2<4;i2++){
+							var thisCrucial=document.getElementById('selfEle').children[i].children[i2];
+							if(objInfo.crucial[0]==thisCrucial.innerHTML||objInfo.crucial[1]==thisCrucial.innerHTML){
+								thisCrucial.style.backgroundColor='red';
+								thisCrucial.style.color='white';
+							}
+						}
+					}
+				}
+			}
+		}
+
+
+		function UrlParamHash(url) {
+			var hash = url.slice(url.indexOf("?") + 1).split('&');
+			var params=new Object();
+			for(var i=0;i<hash.length;i++){
+				var cacheArr=new Array();
+				cacheArr=hash[i].split('=');
+				params[cacheArr[0]]=cacheArr[1];
+			}
+			return params;
+		}
+		
+		function murder(node){
+			if(gameProgress=='murder'){
+				var xhr=new XMLHttpRequest();
+				xhr.open('GET','http://94.191.41.52:3000/murder?clueormethod='+node.innerHTML,false);
+				xhr.send();
+				node.style.backgroundColor='red';
+				node.style.color='white';
+				for(var i=0;i<node.parentNode.children.length;i++){
+					console.log(node.parentNode.children[i]);
+					node.parentNode.children[i].removeAttribute('onclick');
+				}
+			}
+		}	
+
+
+
+
+
+
+		var url=location.href;
+		var params=UrlParamHash(url);
+		
+		var objCSI;
+		var xhr=new XMLHttpRequest();
+		xhr.open('GET','http://94.191.41.52:3000/getCards',false);
+		xhr.send();
+		objCSI=JSON.parse(xhr.responseText);
+
+		var selfData;
+		var ireData=new Array();
+		for(var i=0;i<objCSI.length;i++){
+			if(objCSI[i].name==params.name){
+				selfData=objCSI[i];
+			}
+			else{
+				ireData[ireData.length]=objCSI[i];
+			}
+		}
+	
+		console.log('test');
+		var objInfo;
+		var xhr2=new XMLHttpRequest();
+		xhr2.open('GET','http://94.191.41.52:3000/getGameState',false);
+		xhr2.send();
+		objInfo=JSON.parse(xhr2.responseText);
+		var mainLoopKey=setInterval(main,1000);
+		</script>
+	</head>
+	
+	<body>
+	<script>
+		var selfEle=document.createElement('div');
+			selfEle.setAttribute('id','selfEle');
+		document.body.appendChild(selfEle);
+		
+		var selfName=document.createElement('p');
+			selfName.innerHTML=selfData.name+'('+selfData.id+')';
+		document.getElementById('selfEle').appendChild(selfName);
+		
+		
+		var selfMethod=document.createElement('div');
+		var selfClue=document.createElement('div');
+			selfMethod.setAttribute('id','selfMethod');
+			selfClue.setAttribute('id','selfClue');
+		document.getElementById('selfEle').appendChild(selfMethod);
+		document.getElementById('selfEle').appendChild(selfClue);
+		
+			for(var i=0;i<4;i++){
+				var btnMethod=document.createElement('button');
+				var btnClue=document.createElement('button');
+				btnMethod.innerHTML=selfData.method[i];
+				btnClue.innerHTML=selfData.clue[i];
+				btnMethod.setAttribute('id',i+'selfMethod');
+				btnClue.setAttribute('id',i+'selfClue');
+				if(selfData.id=='凶手'){
+					btnMethod.setAttribute('onclick','murder(this)');
+					btnClue.setAttribute('onclick','murder(this)');
+				}
+				document.getElementById('selfMethod').appendChild(btnMethod);
+				document.getElementById('selfClue').appendChild(btnClue);
+			}
+		
+		var ireEle=document.createElement('div');
+			ireEle.setAttribute('id','ireEle');
+		document.body.appendChild(ireEle);
+		
+		for(var i=0;i<ireData.length;i++){
+			var ireName=document.createElement('p');
+			var ireClue=document.createElement('div');
+			var ireMethod=document.createElement('div');
+			ireName.innerHTML=ireData[i].name+'';
+			ireClue.setAttribute('id',i+'Clue');
+			ireMethod.setAttribute('id',i+'Method');
+			document.getElementById('ireEle').appendChild(ireName);
+			document.getElementById('ireEle').appendChild(ireMethod);
+			document.getElementById('ireEle').appendChild(ireClue);
+			for(var i2=0;i2<4;i2++){
+				var btnClue=document.createElement('button');
+				var btnMethod=document.createElement('button');
+				btnClue.innerHTML=ireData[i].clue[i2];
+				btnMethod.innerHTML=ireData[i].method[i2];
+				document.getElementById(i+'Clue').appendChild(btnClue);
+				document.getElementById(i+'Method').appendChild(btnMethod);
+			}
+		}
+		
+
+		var infoEle=document.createElement('div');
+			infoEle.setAttribute('id','infoEle');
+			document.body.appendChild(infoEle);
+		for(var i=0;i<objInfo.info.length;i++){
+			var infoTitle=document.createElement('p');
+				infoTitle.innerHTML=objInfo.info[i][0];
+				document.getElementById('infoEle').appendChild(infoTitle);
+			var infoList=document.createElement('div');
+				infoList.setAttribute('id',i+'infoList');
+				document.getElementById('infoEle').appendChild(infoList);
+			for(var i2=1;i2<7;i2++){
+				var info=document.createElement('button');
+					info.setAttribute('id',i2);
+					info.innerHTML=objInfo.info[i][i2];
+					document.getElementById(i+'infoList').appendChild(info);
+			}
+		}
+
+	
+	
+	</script>
+	</body>
+</html>

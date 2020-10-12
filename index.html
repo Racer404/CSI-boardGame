@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="./js.js"></script>
+		<script>
+		
+			var i;
+			function ready(){
+				i=setInterval(loop,1000);
+			}
+			
+			function loop(){
+				var name = document.getElementById('input').value;
+				var xhr=new XMLHttpRequest();
+				xhr.open('GET','http://94.191.41.52:3000/checkConnection?name='+name,true);
+				xhr.send();
+				xhr.onreadystatechange=function(){
+					if(xhr.readyState==4&&xhr.status==200){
+						if(xhr.responseText=='STARTED'){
+							window.location.href='./second.html'+'?name='+name;
+							console.log('href');
+						}
+						document.getElementById('text').innerHTML='当前玩家数:'+xhr.responseText;
+					}
+				}
+				console.log('loop');
+			}
+		</script>
+	</head>
+	
+	<body>
+	<input id="input"></input>
+	<p id="text"><p>
+	<button id="btn" onclick="ready();">准备</button>
+	</body>
+</html>
